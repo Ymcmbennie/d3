@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <title>D3 Testing</title>
+</head>
+<body>
+    <h3>SVG Bar</h3>
+    <svg>
+        <rect width="50" height="200" style="fill: blue"/>
+    </svg>
+    <h3>
+        D3 Bar
+    </h3>
+    <script>
+        d3.select("body") //select <body> html tag
+          .append("svg") // add an svg tag
+          .append("rect") //add rect tag
+            .attr("width",50) //setting width
+            .attr("height",200) // setting height
+            .style("fill", "blue"); //setting color
+    </script>
+</body>
+</html>
