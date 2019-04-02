@@ -1,31 +1,94 @@
-var h = 100;
-var w = 200;
+// 2. Use the margin convention practice 
+var margin = {top: 50, right: 50, bottom: 50, left: 50}
+  , width = window.innerWidth - margin.left - margin.right // Use the window's width 
+  , height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
 
-monthlySales = [
-    {"month":10, "sales":17},
-    {"month":20, "sales":10},
-    {"month":30, "sales":20},
-    {"month":40, "sales":15},
-    {"month":50, "sales":21},
-    {"month":60, "sales":25},
-    {"month":70, "sales":19},
-    {"month":80, "sales":8},
-    {"month":90, "sales":13},
-    {"month":100, "sales":20},
-    {"month":110, "sales":9},
-    {"month":120, "sales":15},
-    {"month":130, "sales":20},
-];
+// The number of datapoints
+var n = 21;
 
-var lineFun = d3.svg.line()
-    .x(function(d){return d.month*2;})
-    .y(function(d){return d.sales;})
-    .interpolate("linear");
+// 5. X scale will use the index of our data
+var xScale = d3.scaleLinear()
+    .domain([0, n-1]) // input
+    .range([0, width]); // output
 
-var svg = 
-d3.select("body").append("svg").attr("width", w).attr("height", h);
+// 6. Y scale will use the randomly generate number 
+var yScale = d3.scaleLinear()
+    .domain([0, 1]) // input 
+    .range([height, 0]); // output 
 
-var viz = svg.append("path")
-.attr(d, lineFun(monthlySales))
-.attr("stroke", "purple")
-.attr("stroke-width", 2);1
+// 7. d3's line generator
+var line = d3.line()
+    .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
+    .y(function(d) { return yScale(d.y); }) // set the y values for the line generator 
+    .curve(d3.curveMonotoneX) // apply smoothing to the line
+
+// 8. An array of objects of length N. Each object has key -> value pair, the key being "y" and the value is a random number
+var dataset = d3.range(n).map(function(d) { return {"y": d3.randomUniform(1)() } })
+
+// 1. Add the SVG to the page and employ #2
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// 3. Call the x axis in a group tag
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+
+// 4. Call the y axis in a group tag
+svg.append("g")
+    .attr("class", "y axis")
+    .call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+
+// 9. Append the path, bind the data, and call the line generator 
+svg.append("path")
+    .datum(dataset) // 10. Binds data to the line 
+    .attr("class", "line") // Assign a class for styling 
+    .attr("d", line); // 11. Calls the line generator 
+
+// 12. Appends a circle for each datapoint 
+svg.selectAll(".dot")
+    .data(dataset)
+  .enter().append("circle") // Uses the enter().append() method
+    .attr("class", "dot") // Assign a class for styling
+    .attr("cx", function(d, i) { return xScale(i) })
+    .attr("cy", function(d) { return yScale(d.y) })
+    .attr("r", 5)
+      .on("mouseover", function(a, b, c) { 
+  			console.log(a) 
+        this.attr('class', 'focus')
+		})
+      .on("mouseout", function() {  })
+      .on("mousemove", mousemove);
+
+  var focus = svg.append("g")
+      .attr("class", "focus")
+      .style("display", "none");
+
+  focus.append("circle")
+      .attr("r", 4.5);
+
+  focus.append("text")
+      .attr("x", 9)
+      .attr("dy", ".35em");
+
+  svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", width)
+      .attr("height", height)
+      .on("mouseover", function() { focus.style("display", null); })
+      .on("mouseout", function() { focus.style("display", "none"); })
+      .on("mousemove", mousemove);
+  
+  function mousemove() {
+    var x0 = x.invert(d3.mouse(this)[0]),
+        i = bisectDate(data, x0, 1),
+        d0 = data[i - 1],
+        d1 = data[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+    focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
+    focus.select("text").text(d);
+  }

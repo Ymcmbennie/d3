@@ -1,5 +1,5 @@
 var h = 350;
-var w = 400;
+var w = 800;
 
 monthlySales = [
     {"month":10, "sales":17},
@@ -22,10 +22,11 @@ var svg = d3.select("body").append("svg")
     .attr("height", h);
 
 //add dots
-var dots = svg.selectAll("circle")
-        .data(monthlySales)
-    .enter().append("circle")
-        .attr("cx", function(d){return d.month*3;})
-        .attr("cy", function(d){return h-d.sales;})
-        .attr("r", 3.5)
-        .attr("fill", "red");
+svg.append("text")
+    .text("Benson")
+    .attr("text-anchor", "start")
+    .attr("font-size", 120)
+    .attr("font-family", "Roboto")
+    .attr("fill", "grey")
+    .attr("x", 110)
+    .attr("y", 120)
